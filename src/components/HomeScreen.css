@@ -1,0 +1,268 @@
+.home-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 5rem 2rem 2rem;
+  gap: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Hero ---- */
+.hero-section {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.hero-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #ff4e00, #ff8c00, #ffd700);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fireGradient 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 40px rgba(255, 140, 0, 0.4))
+         drop-shadow(0 0 80px rgba(255, 78, 0, 0.2));
+  line-height: 1.1;
+}
+
+@keyframes fireGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero-tagline {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 400;
+  font-size: clamp(0.65rem, 1.8vw, 0.85rem);
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.35em;
+  margin-top: 1rem;
+}
+
+/* ---- Arena Section ---- */
+.arena-section {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.arena-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Level Grid ---- */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .level-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+.level-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.4rem 1.2rem 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Rajdhani', sans-serif;
+  color: #fff;
+  min-height: 200px;
+}
+
+.level-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 140, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 140, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.level-icon {
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+.level-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.level-name {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.level-wpm {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.level-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 0.4rem;
+}
+
+.level-time {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 500;
+  margin-top: auto;
+  margin-bottom: 1.2rem;
+}
+
+.level-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: var(--level-color);
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 0 12px var(--level-color);
+}
+
+/* ---- Nav Buttons ---- */
+.home-nav-buttons {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.btn-outline-leaderboard {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #ff8c00;
+  background: transparent;
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 2.2rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.03);
+}
+
+.btn-outline-leaderboard:hover {
+  background: rgba(255, 140, 0, 0.06);
+  border-color: rgba(255, 140, 0, 0.7);
+  box-shadow: 0 0 24px rgba(255, 140, 0, 0.25);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+.btn-outline-badges {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #ffd700;
+  background: transparent;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 2.2rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.03);
+}
+
+.btn-outline-badges:hover {
+  background: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.7);
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.25);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* ---- XP Footer ---- */
+.xp-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1100px;
+  padding: 0.8rem 0;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 12, 0.9);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.8rem 2rem;
+  z-index: 40;
+}
+
+.xp-tier {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.xp-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4e00, #ff8c00, #ffd700);
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+.xp-amount {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.65rem;
+  color: #ffd700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}

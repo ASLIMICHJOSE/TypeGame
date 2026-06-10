@@ -1,0 +1,182 @@
+.badges-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 5rem 2rem 3rem;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.badges-header {
+  text-align: center;
+}
+
+.badges-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #ff4e00, #ff8c00, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.3));
+}
+
+.badges-counter {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 0.5rem;
+}
+
+/* ---- Grid ---- */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+@media (max-width: 800px) {
+  .badges-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 450px) {
+  .badges-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Badge Card ---- */
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+/* Earned */
+.badge-earned {
+  background: rgba(255, 140, 0, 0.05);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+}
+
+.badge-earned:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(255, 140, 0, 0.12);
+}
+
+/* Locked */
+.badge-locked {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Icon Circle ---- */
+.badge-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+}
+
+.badge-icon-earned {
+  background: linear-gradient(135deg, #ff8c00, #ff4e00);
+  box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
+}
+
+.badge-icon-locked {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.badge-icon-emoji {
+  font-size: 1.6rem;
+}
+
+.badge-locked .badge-icon-emoji {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+/* ---- Text ---- */
+.badge-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.badge-earned .badge-name {
+  color: #ffd700;
+}
+
+.badge-locked .badge-name {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.badge-description {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.3;
+}
+
+/* ---- Tags ---- */
+.badge-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-top: 0.2rem;
+}
+
+.badge-tag-earned {
+  background: rgba(255, 140, 0, 0.15);
+  color: #ff8c00;
+}
+
+.badge-tag-locked {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- Back Button ---- */
+.badges-back-btn {
+  margin-top: 1rem;
+}
+
+.btn-outline-primary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #ff8c00;
+  background: transparent;
+  border: 1px solid rgba(255, 140, 0, 0.4);
+  border-radius: 8px;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-outline-primary:hover {
+  background: rgba(255, 140, 0, 0.08);
+  border-color: rgba(255, 140, 0, 0.7);
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
+  transform: translateY(-2px);
+  color: #fff;
+}

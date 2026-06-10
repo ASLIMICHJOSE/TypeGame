@@ -1,0 +1,203 @@
+.leaderboard-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 5rem 2rem 3rem;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.lb-header {
+  text-align: center;
+}
+
+.lb-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #ff4e00, #ff8c00, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.3));
+}
+
+.lb-subtitle {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 0.5rem;
+}
+
+/* ---- List ---- */
+.lb-list {
+  width: 100%;
+  max-width: 750px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.lb-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Top 3 borders */
+.lb-row-top-1 {
+  border-left-color: #ffd700;
+  background: rgba(255, 215, 0, 0.03);
+}
+
+.lb-row-top-2 {
+  border-left-color: #c0c0c0;
+  background: rgba(192, 192, 192, 0.02);
+}
+
+.lb-row-top-3 {
+  border-left-color: #cd7f32;
+  background: rgba(205, 127, 50, 0.02);
+}
+
+.lb-row-player {
+  border-left-color: #ff8c00 !important;
+  background: rgba(255, 140, 0, 0.06) !important;
+}
+
+/* Rank Column */
+.lb-row-rank {
+  width: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lb-medal {
+  font-size: 1.5rem;
+}
+
+.lb-rank-number {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Info Column */
+.lb-row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-left: 0.5rem;
+}
+
+.lb-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lb-you-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.45rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  background: rgba(255, 140, 0, 0.2);
+  color: #ff8c00;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+}
+
+.lb-meta {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+}
+
+/* WPM Column */
+.lb-row-wpm {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;
+}
+
+.lb-wpm-range {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.05em;
+  text-align: right;
+}
+
+.lb-wpm-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ff8c00;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Top 3 WPM color */
+.lb-row-top-1 .lb-wpm-value { color: #ffd700; }
+.lb-row-top-2 .lb-wpm-value { color: #e0e0e0; }
+.lb-row-top-3 .lb-wpm-value { color: #cd7f32; }
+
+/* ---- Back Button ---- */
+.lb-back-btn {
+  margin-top: 1rem;
+}
+
+.btn-outline-primary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #ff8c00;
+  background: transparent;
+  border: 1px solid rgba(255, 140, 0, 0.4);
+  border-radius: 8px;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-outline-primary:hover {
+  background: rgba(255, 140, 0, 0.08);
+  border-color: rgba(255, 140, 0, 0.7);
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .lb-wpm-range { display: none; }
+  .lb-row-rank { width: 35px; }
+  .lb-wpm-value { font-size: 1.3rem; }
+}
