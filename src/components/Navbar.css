@@ -8,9 +8,25 @@
   left: 0;
   right: 0;
   z-index: 50;
-  background: rgba(10, 10, 12, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(10, 10, 12, 0.88);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  animation: navbarSlide 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes navbarSlide {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle gradient line at bottom */
+.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 5%; right: 5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,140,0,0.25), transparent);
+  pointer-events: none;
 }
 
 .navbar-brand {
@@ -19,16 +35,24 @@
   font-size: 1.2rem;
   letter-spacing: 0.15em;
   background: linear-gradient(135deg, #ff4e00, #ff8c00, #ffd700);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   cursor: pointer;
-  transition: filter 0.3s;
+  transition: filter 0.3s, letter-spacing 0.3s;
   text-decoration: none;
+  animation: brandGlow 4s ease-in-out infinite;
+}
+
+@keyframes brandGlow {
+  0%, 100% { background-position: 0% 50%; filter: drop-shadow(0 0 8px rgba(255,140,0,0.3)); }
+  50%       { background-position: 100% 50%; filter: drop-shadow(0 0 16px rgba(255,140,0,0.5)); }
 }
 
 .navbar-brand:hover {
-  filter: brightness(1.2);
+  filter: drop-shadow(0 0 24px rgba(255,140,0,0.7)) brightness(1.2);
+  letter-spacing: 0.2em;
 }
 
 .navbar-links {
@@ -47,17 +71,53 @@
   border-radius: 6px;
   padding: 0.45rem 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: color 0.25s ease,
+              border-color 0.25s ease,
+              background 0.25s ease,
+              transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scan-line sweep on hover */
+.navbar-link::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  transition: left 0.45s ease;
+  pointer-events: none;
+}
+
+.navbar-link:hover::before {
+  left: 140%;
 }
 
 .navbar-link:hover {
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.navbar-link:active {
+  transform: scale(0.95);
 }
 
 .navbar-link-active {
   color: #ff8c00;
-  border-color: rgba(255, 140, 0, 0.5);
+  border-color: rgba(255, 140, 0, 0.4);
   background: rgba(255, 140, 0, 0.08);
+  box-shadow: 0 0 12px rgba(255, 140, 0, 0.15);
+}
+
+.navbar-link-active:hover {
+  border-color: #ff8c00;
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+  color: #ffd700;
 }

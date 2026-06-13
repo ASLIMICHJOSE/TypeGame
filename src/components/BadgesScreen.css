@@ -11,6 +11,12 @@
 
 .badges-header {
   text-align: center;
+  animation: headerEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes headerEntrance {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .badges-title {
@@ -22,7 +28,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.3));
+  filter: drop-shadow(0 0 24px rgba(255, 140, 0, 0.35));
+  cursor: default;
 }
 
 .badges-counter {
@@ -41,6 +48,12 @@
   gap: 1rem;
   width: 100%;
   max-width: 900px;
+  animation: gridFadeIn 0.7s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes gridFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 800px) {
@@ -51,6 +64,20 @@
   .badges-grid { grid-template-columns: 1fr; }
 }
 
+/* Stagger card entrance */
+.badge-card:nth-child(1)  { animation-delay: 0.15s; }
+.badge-card:nth-child(2)  { animation-delay: 0.20s; }
+.badge-card:nth-child(3)  { animation-delay: 0.25s; }
+.badge-card:nth-child(4)  { animation-delay: 0.30s; }
+.badge-card:nth-child(5)  { animation-delay: 0.35s; }
+.badge-card:nth-child(6)  { animation-delay: 0.40s; }
+.badge-card:nth-child(7)  { animation-delay: 0.45s; }
+.badge-card:nth-child(8)  { animation-delay: 0.50s; }
+.badge-card:nth-child(9)  { animation-delay: 0.55s; }
+.badge-card:nth-child(10) { animation-delay: 0.60s; }
+.badge-card:nth-child(11) { animation-delay: 0.65s; }
+.badge-card:nth-child(12) { animation-delay: 0.70s; }
+
 /* ---- Badge Card ---- */
 .badge-card {
   display: flex;
@@ -60,24 +87,57 @@
   padding: 1.5rem 1rem;
   border-radius: 12px;
   text-align: center;
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  animation: cardPop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+
+@keyframes cardPop {
+  from { opacity: 0; transform: scale(0.85) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Shimmer sweep */
+.badge-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+
+.badge-card:hover::before {
+  left: 140%;
 }
 
 /* Earned */
 .badge-earned {
   background: rgba(255, 140, 0, 0.05);
-  border: 1px solid rgba(255, 140, 0, 0.3);
+  border: 1px solid rgba(255, 140, 0, 0.25);
 }
 
 .badge-earned:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(255, 140, 0, 0.12);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 36px rgba(255, 140, 0, 0.18),
+              0 0 0 1px rgba(255,140,0,0.15);
+  border-color: rgba(255, 140, 0, 0.5);
 }
 
 /* Locked */
 .badge-locked {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.badge-locked:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.12);
 }
 
 /* ---- Icon Circle ---- */
@@ -89,11 +149,27 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0.3rem;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+}
+
+.badge-earned .badge-icon-circle {
+  animation: iconFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
 }
 
 .badge-icon-earned {
   background: linear-gradient(135deg, #ff8c00, #ff4e00);
-  box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 140, 0, 0.35);
+}
+
+.badge-earned:hover .badge-icon-earned {
+  box-shadow: 0 8px 30px rgba(255, 140, 0, 0.55);
+  transform: scale(1.12) rotate(-5deg);
 }
 
 .badge-icon-locked {
@@ -102,6 +178,11 @@
 
 .badge-icon-emoji {
   font-size: 1.6rem;
+  transition: transform 0.3s;
+}
+
+.badge-earned:hover .badge-icon-emoji {
+  transform: scale(1.15);
 }
 
 .badge-locked .badge-icon-emoji {
@@ -115,10 +196,15 @@
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.12em;
+  transition: text-shadow 0.3s;
 }
 
 .badge-earned .badge-name {
   color: #ffd700;
+}
+
+.badge-earned:hover .badge-name {
+  text-shadow: 0 0 16px rgba(255,215,0,0.6);
 }
 
 .badge-locked .badge-name {
@@ -141,11 +227,16 @@
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   margin-top: 0.2rem;
+  transition: box-shadow 0.3s;
 }
 
 .badge-tag-earned {
   background: rgba(255, 140, 0, 0.15);
   color: #ff8c00;
+}
+
+.badge-earned:hover .badge-tag-earned {
+  box-shadow: 0 0 10px rgba(255,140,0,0.4);
 }
 
 .badge-tag-locked {
@@ -156,6 +247,12 @@
 /* ---- Back Button ---- */
 .badges-back-btn {
   margin-top: 1rem;
+  animation: slideUpFade 0.6s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .btn-outline-primary {
@@ -169,14 +266,42 @@
   border-radius: 8px;
   padding: 0.8rem 2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease,
+              background 0.3s ease,
+              color 0.3s ease;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-outline-primary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.btn-outline-primary:hover::after {
+  left: 140%;
 }
 
 .btn-outline-primary:hover {
-  background: rgba(255, 140, 0, 0.08);
-  border-color: rgba(255, 140, 0, 0.7);
-  box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
-  transform: translateY(-2px);
+  background: rgba(255, 140, 0, 0.1);
+  border-color: #ff8c00;
+  box-shadow: 0 0 28px rgba(255, 140, 0, 0.3), 0 0 50px rgba(255,140,0,0.1);
+  transform: translateY(-3px) scale(1.04);
   color: #fff;
+}
+
+.btn-outline-primary:active {
+  transform: scale(0.96);
 }

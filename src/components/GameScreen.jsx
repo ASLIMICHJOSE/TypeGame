@@ -119,7 +119,6 @@ export default function GameScreen({ onFinish, onQuit }) {
   const liveAccuracy = totalAttempts > 0 ? calculateAccuracy(correctCount, totalAttempts) : 100;
   const timerPercent = (timeLeft / level.time) * 100;
   const timerCritical = timerPercent <= 25;
-  const wordsTyped = passage.slice(0, cursorIndex).split(' ').filter(w => w).length;
 
   const handleEndNow = () => {
     if (started) {
@@ -161,12 +160,12 @@ export default function GameScreen({ onFinish, onQuit }) {
         </div>
         <div className="timer-info">
           <span className="timer-hint">{started ? '' : 'PRESS A KEY TO BEGIN'}</span>
-          <span className="timer-countdown">{timeLeft.toFixed(1)}s</span>
+          <span className={`timer-countdown ${timerCritical ? 'critical' : ''}`}>{timeLeft.toFixed(1)}s</span>
         </div>
       </div>
 
       {/* Text Display */}
-      <div className="text-display-box" ref={textDisplayRef}>
+      <div className={`text-display-box ${started ? 'active' : ''}`} ref={textDisplayRef}>
         {passage.split('').map((char, i) => {
           let cls = 'char char-pending';
           if (i < cursorIndex) {
@@ -192,22 +191,6 @@ export default function GameScreen({ onFinish, onQuit }) {
         onChange={() => {}}
         placeholder="START TYPING…"
       />
-
-      {/* Mini Stats Row */}
-      <div className="mini-stats-row">
-        <div className="mini-stat-box">
-          <span className="mini-stat-label">TIME LEFT</span>
-          <span className="mini-stat-value">{timeLeft.toFixed(1)}s</span>
-        </div>
-        <div className="mini-stat-box">
-          <span className="mini-stat-label">WORDS</span>
-          <span className="mini-stat-value">{wordsTyped}</span>
-        </div>
-        <div className="mini-stat-box">
-          <span className="mini-stat-label">ERRORS</span>
-          <span className="mini-stat-value mini-stat-errors">{errorCount}</span>
-        </div>
-      </div>
 
       {/* Control Buttons */}
       <div className="game-controls">
