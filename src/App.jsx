@@ -4,6 +4,7 @@ import useLocalStorage from './hooks/useLocalStorage';
 import FireParticles from './components/FireParticles';
 import Navbar from './components/Navbar';
 import HomeScreen from './components/HomeScreen';
+import GameOptions from './components/GameOptions';
 import GameScreen from './components/GameScreen';
 import ResultScreen from './components/ResultScreen';
 import LeaderboardScreen from './components/LeaderboardScreen';
@@ -11,38 +12,52 @@ import BadgesScreen from './components/BadgesScreen';
 import badgeDefinitions from './data/badges';
 import botEntries from './data/botEntries';
 import { calculateXP, getLevelLabel } from './utils/gameLogic';
+import levels from './data/levels';
 
 const PLAYER_NAME = 'You';
+
+// Default options — used if the player skips the options screen
+const DEFAULT_OPTIONS = { timer: 60, mode: 'words', textLength: 'medium', strict: false };
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [lastResult, setLastResult] = useState(null);
-  const [newBadge, setNewBadge] = useState(null);
+  const [lastResult, setLastResult]   = useState(null);
+  const [newBadge, setNewBadge]       = useState(null);
+  const [gameOptions, setGameOptions] = useState(DEFAULT_OPTIONS);
 
   // Persistent state
-  const [totalXP, setTotalXP] = useLocalStorage('typeblaze_xp', 0);
-  const [gamesPlayed, setGamesPlayed] = useLocalStorage('typeblaze_games', 0);
-  const [bestWpm, setBestWpm] = useLocalStorage('typeblaze_best_wpm', 0);
-  const [bestAccuracy, setBestAccuracy] = useLocalStorage('typeblaze_best_accuracy', 0);
-  const [bestCombo, setBestCombo] = useLocalStorage('typeblaze_best_combo', 0);
+  const [totalXP, setTotalXP]               = useLocalStorage('typeblaze_xp', 0);
+  const [gamesPlayed, setGamesPlayed]       = useLocalStorage('typeblaze_games', 0);
+  const [bestWpm, setBestWpm]               = useLocalStorage('typeblaze_best_wpm', 0);
+  const [bestAccuracy, setBestAccuracy]     = useLocalStorage('typeblaze_best_accuracy', 0);
+  const [bestCombo, setBestCombo]           = useLocalStorage('typeblaze_best_combo', 0);
   const [levelsCompleted, setLevelsCompleted] = useLocalStorage('typeblaze_levels', []);
   const [earnedBadgeIds, setEarnedBadgeIds] = useLocalStorage('typeblaze_badges', []);
-  const [leaderboard, setLeaderboard] = useLocalStorage('typeblaze_leaderboard', [...botEntries]);
+  const [leaderboard, setLeaderboard]       = useLocalStorage('typeblaze_leaderboard', [...botEntries]);
 
+  // Navigate to options screen for the chosen level
   const handleSelectLevel = useCallback((levelId) => {
-    navigate(`/play/${levelId}`);
+    // Set a sensible default timer from the level config
+    const level = levels.find(l => l.id === levelId);
+    setGameOptions(prev => ({ ...DEFAULT_OPTIONS, timer: level?.time ?? 60 }));
+    navigate(`/options/${levelId}`);
   }, [navigate]);
+
+  // Called by GameOptions when player confirms settings
+  const handleOptionsStart = useCallback((opts) => {
+    setGameOptions(opts);
+  }, []);
 
   const handleGameFinish = useCallback((result) => {
     const xpEarned = calculateXP(result.wpm, result.accuracy, result.maxCombo);
 
-    const newGamesPlayed = gamesPlayed + 1;
-    const newBestWpm = Math.max(bestWpm, result.wpm);
-    const newBestAccuracy = Math.max(bestAccuracy, result.accuracy);
-    const newBestCombo = Math.max(bestCombo, result.maxCombo);
-    const newLevelsCompleted = levelsCompleted.includes(result.levelId)
+    const newGamesPlayed      = gamesPlayed + 1;
+    const newBestWpm          = Math.max(bestWpm, result.wpm);
+    const newBestAccuracy     = Math.max(bestAccuracy, result.accuracy);
+    const newBestCombo        = Math.max(bestCombo, result.maxCombo);
+    const newLevelsCompleted  = levelsCompleted.includes(result.levelId)
       ? levelsCompleted
       : [...levelsCompleted, result.levelId];
 
@@ -58,7 +73,7 @@ export default function App() {
       level: getLevelLabel(result.wpm),
       wpm: result.wpm,
       accuracy: result.accuracy,
-      isBot: false
+      isBot: false,
     };
     setLeaderboard(prev => {
       const withoutOldPlayer = prev.filter(e => e.isBot || e.wpm > result.wpm);
@@ -72,7 +87,7 @@ export default function App() {
       bestWpm: newBestWpm,
       bestAccuracy: newBestAccuracy,
       bestCombo: newBestCombo,
-      levelsCompleted: newLevelsCompleted
+      levelsCompleted: newLevelsCompleted,
     };
 
     let firstNewBadge = null;
@@ -91,26 +106,27 @@ export default function App() {
 
   const handleRetry = useCallback(() => {
     if (lastResult?.levelId) {
-      navigate(`/play/${lastResult.levelId}`);
+      navigate(`/options/${lastResult.levelId}`);
     } else {
       navigate('/');
     }
   }, [lastResult, navigate]);
 
-  const handleHome = useCallback(() => navigate('/'), [navigate]);
+  const handleHome     = useCallback(() => navigate('/'), [navigate]);
   const handleNavigate = useCallback((target) => {
     if (target === 'home') navigate('/');
     else navigate(`/${target}`);
   }, [navigate]);
 
-  const showNavbar = !location.pathname.startsWith('/play/') && location.pathname !== '/result';
+  const path = location.pathname;
+  const showNavbar = !path.startsWith('/play/') && !path.startsWith('/options/') && path !== '/result';
 
   return (
     <div className="app">
       <FireParticles />
 
       {showNavbar && (
-        <Navbar currentPath={location.pathname} onNavigate={handleNavigate} />
+        <Navbar currentPath={path} onNavigate={handleNavigate} />
       )}
 
       <div className="screen-container">
@@ -126,10 +142,18 @@ export default function App() {
             }
           />
 
+          {/* ── Options screen ── */}
+          <Route
+            path="/options/:levelId"
+            element={<GameOptions onStart={handleOptionsStart} />}
+          />
+
+          {/* ── Game screen ── */}
           <Route
             path="/play/:levelId"
             element={
               <GameScreen
+                options={gameOptions}
                 onFinish={handleGameFinish}
                 onQuit={handleHome}
               />
@@ -174,4 +198,3 @@ export default function App() {
     </div>
   );
 }
-

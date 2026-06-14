@@ -4,7 +4,7 @@ const levels = [
   {
     id: 'ember',
     name: 'Ember',
-    icon: '🌱',
+    iconName: 'Sprout',
     wpmRange: '≤ 30 WPM',
     color: '#ff8c00',
     borderColor: '#ff6a00',
@@ -14,7 +14,7 @@ const levels = [
   {
     id: 'blaze',
     name: 'Blaze',
-    icon: '🔥',
+    iconName: 'Flame',
     wpmRange: '30 – 50 WPM',
     color: '#ff4e00',
     borderColor: '#ff3300',
@@ -24,7 +24,7 @@ const levels = [
   {
     id: 'storm',
     name: 'Storm',
-    icon: '⚡',
+    iconName: 'Zap',
     wpmRange: '50 – 70 WPM',
     color: '#ffd700',
     borderColor: '#ffb300',
@@ -34,7 +34,7 @@ const levels = [
   {
     id: 'inferno',
     name: 'Inferno',
-    icon: '💀',
+    iconName: 'Skull',
     wpmRange: '70 – 90 WPM',
     color: '#ff1a1a',
     borderColor: '#cc0000',
@@ -44,7 +44,7 @@ const levels = [
   {
     id: 'legend',
     name: 'Legend',
-    icon: '👑',
+    iconName: 'Crown',
     wpmRange: '90+ WPM',
     color: '#bf00ff',
     borderColor: '#9900cc',
@@ -54,4 +54,3 @@ const levels = [
 ];
 
 export default levels;
-

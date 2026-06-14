@@ -7,16 +7,23 @@
   gap: 2rem;
   position: relative;
   z-index: 1;
+  perspective: 1200px;
 }
 
 .badges-header {
   text-align: center;
-  animation: headerEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: headerEntrance3D 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes headerEntrance {
-  from { opacity: 0; transform: translateY(-24px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes headerEntrance3D {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateX(30deg) translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) rotateX(0deg) translateY(0);
+  }
 }
 
 .badges-title {
@@ -25,18 +32,31 @@
   font-size: clamp(2rem, 5vw, 3.5rem);
   letter-spacing: 0.12em;
   background: linear-gradient(135deg, #ff4e00, #ff8c00, #ffd700);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 24px rgba(255, 140, 0, 0.35));
+  filter: drop-shadow(0 0 28px rgba(255, 140, 0, 0.45));
+  animation: titleGlow 3.5s ease-in-out infinite;
   cursor: default;
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes titleGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+.badges-title:hover {
+  transform: perspective(400px) rotateY(-5deg) scale(1.03) translateZ(16px);
 }
 
 .badges-counter {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.6rem;
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.38em;
   color: rgba(255, 255, 255, 0.35);
   margin-top: 0.5rem;
 }
@@ -45,15 +65,22 @@
 .badges-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.1rem;
   width: 100%;
-  max-width: 900px;
+  max-width: 920px;
   animation: gridFadeIn 0.7s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  perspective: 1000px;
 }
 
 @keyframes gridFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateX(20deg) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) rotateX(0deg) translateY(0);
+  }
 }
 
 @media (max-width: 800px) {
@@ -65,18 +92,18 @@
 }
 
 /* Stagger card entrance */
-.badge-card:nth-child(1)  { animation-delay: 0.15s; }
-.badge-card:nth-child(2)  { animation-delay: 0.20s; }
-.badge-card:nth-child(3)  { animation-delay: 0.25s; }
-.badge-card:nth-child(4)  { animation-delay: 0.30s; }
-.badge-card:nth-child(5)  { animation-delay: 0.35s; }
-.badge-card:nth-child(6)  { animation-delay: 0.40s; }
-.badge-card:nth-child(7)  { animation-delay: 0.45s; }
-.badge-card:nth-child(8)  { animation-delay: 0.50s; }
-.badge-card:nth-child(9)  { animation-delay: 0.55s; }
-.badge-card:nth-child(10) { animation-delay: 0.60s; }
-.badge-card:nth-child(11) { animation-delay: 0.65s; }
-.badge-card:nth-child(12) { animation-delay: 0.70s; }
+.badge-card:nth-child(1)  { animation-delay: 0.10s; }
+.badge-card:nth-child(2)  { animation-delay: 0.14s; }
+.badge-card:nth-child(3)  { animation-delay: 0.18s; }
+.badge-card:nth-child(4)  { animation-delay: 0.22s; }
+.badge-card:nth-child(5)  { animation-delay: 0.26s; }
+.badge-card:nth-child(6)  { animation-delay: 0.30s; }
+.badge-card:nth-child(7)  { animation-delay: 0.34s; }
+.badge-card:nth-child(8)  { animation-delay: 0.38s; }
+.badge-card:nth-child(9)  { animation-delay: 0.42s; }
+.badge-card:nth-child(10) { animation-delay: 0.46s; }
+.badge-card:nth-child(11) { animation-delay: 0.50s; }
+.badge-card:nth-child(12) { animation-delay: 0.54s; }
 
 /* ---- Badge Card ---- */
 .badge-card {
@@ -84,20 +111,29 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1.5rem 1rem;
-  border-radius: 12px;
+  padding: 1.6rem 1rem;
+  border-radius: 16px;
   text-align: center;
   position: relative;
   overflow: hidden;
-  animation: cardPop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
+  animation: cardPop3D 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s;
+  transform-style: preserve-3d;
 }
 
-@keyframes cardPop {
-  from { opacity: 0; transform: scale(0.85) translateY(16px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes cardPop3D {
+  from {
+    opacity: 0;
+    transform: perspective(600px) scale(0.8) rotateX(20deg) rotateY(-10deg) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(600px) scale(1) rotateX(0deg) rotateY(0deg) translateY(0);
+  }
 }
 
 /* Shimmer sweep */
@@ -107,87 +143,116 @@
   top: 0; left: -100%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
-  transition: left 0.55s ease;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  transition: left 0.6s ease;
   pointer-events: none;
+  z-index: 0;
 }
 
 .badge-card:hover::before {
   left: 140%;
 }
 
+/* Top glass line */
+.badge-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
 /* Earned */
 .badge-earned {
   background: rgba(255, 140, 0, 0.05);
-  border: 1px solid rgba(255, 140, 0, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 140, 0, 0.22);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
 }
 
 .badge-earned:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 12px 36px rgba(255, 140, 0, 0.18),
-              0 0 0 1px rgba(255,140,0,0.15);
-  border-color: rgba(255, 140, 0, 0.5);
+  transform: perspective(600px) rotateX(-8deg) rotateY(5deg) translateY(-10px) translateZ(18px) scale(1.04);
+  box-shadow:
+    0 20px 50px rgba(255, 140, 0, 0.25),
+    0 0 60px rgba(255,140,0,0.1),
+    0 0 0 1px rgba(255,140,0,0.2);
+  border-color: rgba(255, 140, 0, 0.55);
+  background: rgba(255, 140, 0, 0.09);
 }
 
 /* Locked */
 .badge-locked {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 .badge-locked:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.12);
+  transform: perspective(600px) rotateX(-4deg) rotateY(3deg) translateY(-4px) translateZ(8px);
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 
 /* ---- Icon Circle ---- */
 .badge-icon-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.3rem;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
 }
 
 .badge-earned .badge-icon-circle {
-  animation: iconFloat 3.5s ease-in-out infinite;
+  animation: iconFloat3D 3.5s ease-in-out infinite;
 }
 
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-5px); }
+@keyframes iconFloat3D {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  50%       { transform: translateY(-6px) rotateY(8deg); }
 }
 
 .badge-icon-earned {
-  background: linear-gradient(135deg, #ff8c00, #ff4e00);
-  box-shadow: 0 4px 20px rgba(255, 140, 0, 0.35);
+  background: linear-gradient(135deg, #ff8c00, #ff4e00, #c23b00);
+  box-shadow: 0 6px 24px rgba(255, 140, 0, 0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
 }
 
 .badge-earned:hover .badge-icon-earned {
-  box-shadow: 0 8px 30px rgba(255, 140, 0, 0.55);
-  transform: scale(1.12) rotate(-5deg);
+  box-shadow: 0 12px 40px rgba(255, 140, 0, 0.7), 0 1px 0 rgba(255,255,255,0.15) inset;
+  transform: perspective(300px) scale(1.15) rotateX(-8deg) rotateY(10deg) translateZ(12px);
 }
 
 .badge-icon-locked {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .badge-icon-emoji {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   transition: transform 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .badge-earned:hover .badge-icon-emoji {
-  transform: scale(1.15);
+  transform: scale(1.2) rotate(5deg);
 }
 
 .badge-locked .badge-icon-emoji {
   filter: grayscale(1);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 /* ---- Text ---- */
@@ -197,6 +262,8 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   transition: text-shadow 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .badge-earned .badge-name {
@@ -204,18 +271,25 @@
 }
 
 .badge-earned:hover .badge-name {
-  text-shadow: 0 0 16px rgba(255,215,0,0.6);
+  text-shadow: 0 0 20px rgba(255,215,0,0.8);
 }
 
 .badge-locked .badge-name {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .badge-description {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.35);
-  line-height: 1.3;
+  line-height: 1.35;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s;
+}
+
+.badge-earned:hover .badge-description {
+  color: rgba(255,255,255,0.55);
 }
 
 /* ---- Tags ---- */
@@ -224,35 +298,38 @@
   font-size: 0.5rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
+  padding: 0.22rem 0.65rem;
+  border-radius: 5px;
   margin-top: 0.2rem;
   transition: box-shadow 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .badge-tag-earned {
   background: rgba(255, 140, 0, 0.15);
   color: #ff8c00;
+  border: 1px solid rgba(255,140,0,0.2);
 }
 
 .badge-earned:hover .badge-tag-earned {
-  box-shadow: 0 0 10px rgba(255,140,0,0.4);
+  box-shadow: 0 0 16px rgba(255,140,0,0.5);
 }
 
 .badge-tag-locked {
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.22);
 }
 
 /* ---- Back Button ---- */
 .badges-back-btn {
   margin-top: 1rem;
-  animation: slideUpFade 0.6s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: slideUpFade 0.7s 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) translateZ(-8px); }
+  to   { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
 .btn-outline-primary {
@@ -261,22 +338,25 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   color: #ff8c00;
-  background: transparent;
+  background: rgba(255,140,0,0.04);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 140, 0, 0.4);
-  border-radius: 8px;
-  padding: 0.8rem 2rem;
+  border-radius: 10px;
+  padding: 0.85rem 2.2rem;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease,
-              background 0.3s ease,
-              color 0.3s ease;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
 }
 
 .btn-outline-primary::after {
@@ -285,7 +365,7 @@
   top: 0; left: -100%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
   transition: left 0.5s ease;
   pointer-events: none;
 }
@@ -295,10 +375,10 @@
 }
 
 .btn-outline-primary:hover {
-  background: rgba(255, 140, 0, 0.1);
+  background: rgba(255, 140, 0, 0.12);
   border-color: #ff8c00;
-  box-shadow: 0 0 28px rgba(255, 140, 0, 0.3), 0 0 50px rgba(255,140,0,0.1);
-  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 0 40px rgba(255, 140, 0, 0.45), 0 0 80px rgba(255,140,0,0.15), 0 8px 30px rgba(0,0,0,0.4);
+  transform: translateY(-4px) scale(1.05) perspective(600px) rotateX(-5deg);
   color: #fff;
 }
 

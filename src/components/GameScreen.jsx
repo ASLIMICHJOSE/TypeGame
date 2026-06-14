@@ -1,36 +1,52 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Type, Quote, Code2, Timer, AlertTriangle, Delete, ChevronRight } from 'lucide-react';
 import levels from '../data/levels';
+import LucideIcon from './LucideIcon';
 import { generatePassage, calculateWPM, calculateAccuracy, COMBO_MILESTONES } from '../utils/gameLogic';
 import './GameScreen.css';
 
-export default function GameScreen({ onFinish, onQuit }) {
+const DEFAULT_OPTS = { timer: 60, mode: 'words', textLength: 'medium', strict: false };
+
+const MODE_LABELS = {
+  words: { label: 'WORDS', Icon: Type },
+  quote: { label: 'QUOTE', Icon: Quote },
+  code:  { label: 'CODE',  Icon: Code2 },
+};
+const LENGTH_LABELS = { short: 'SHORT', medium: 'MEDIUM', long: 'LONG' };
+
+export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit }) {
   const { levelId } = useParams();
-  const level = useMemo(() => levels.find(l => l.id === levelId) || levels[0], [levelId]);
-  const passage = useMemo(() => generatePassage(levelId), [levelId]);
+  const level   = useMemo(() => levels.find(l => l.id === levelId) || levels[0], [levelId]);
+  const opts    = useMemo(() => ({ ...DEFAULT_OPTS, ...options }), [options]);
+  const passage = useMemo(() => generatePassage(levelId, opts.textLength, opts.mode), [levelId, opts.textLength, opts.mode]);
 
-  const [cursorIndex, setCursorIndex] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [totalAttempts, setTotalAttempts] = useState(0);
-  const [errorCount, setErrorCount] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [maxCombo, setMaxCombo] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(level.time);
-  const [started, setStarted] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [shaking, setShaking] = useState(false);
-  const [comboFlash, setComboFlash] = useState(null);
-  const [charStates, setCharStates] = useState(() => Array(passage.length).fill('pending'));
+  /* ── State ── */
+  const [cursorIndex,   setCursorIndex]   = useState(0);
+  const [correctCount,  setCorrectCount]  = useState(0);
+  const [totalTyped,    setTotalTyped]    = useState(0); // total key presses (not counting backspace)
+  const [errorCount,    setErrorCount]    = useState(0);
+  const [combo,         setCombo]         = useState(0);
+  const [maxCombo,      setMaxCombo]      = useState(0);
+  const [timeLeft,      setTimeLeft]      = useState(opts.timer);
+  const [started,       setStarted]       = useState(false);
+  const [finished,      setFinished]      = useState(false);
+  const [shaking,       setShaking]       = useState(false);
+  const [comboFlash,    setComboFlash]    = useState(null);
+  // charStates: 'pending' | 'correct' | 'wrong'
+  const [charStates,    setCharStates]    = useState(() => Array(passage.length).fill('pending'));
+  // mistakeSet tracks indices where a wrong keystroke ever occurred (for true accuracy)
+  const [mistakeSet,    setMistakeSet]    = useState(() => new Set());
 
-  const inputRef = useRef(null);
-  const timerRef = useRef(null);
-  const startTimeRef = useRef(null);
+  const inputRef       = useRef(null);
+  const timerRef       = useRef(null);
+  const startTimeRef   = useRef(null);
   const textDisplayRef = useRef(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  /* ── Auto-focus ── */
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
+  /* ── Timer ── */
   useEffect(() => {
     if (started && !finished) {
       timerRef.current = setInterval(() => {
@@ -47,77 +63,119 @@ export default function GameScreen({ onFinish, onQuit }) {
     return () => clearInterval(timerRef.current);
   }, [started, finished]);
 
+  /* ── On finish ── */
   useEffect(() => {
     if (finished) {
-      const elapsed = startTimeRef.current ? (Date.now() - startTimeRef.current) / 1000 : level.time;
-      const wpm = calculateWPM(correctCount, elapsed);
-      const accuracy = calculateAccuracy(correctCount, totalAttempts);
-      onFinish({ wpm, accuracy, maxCombo, errors: errorCount, charsTyped: correctCount, levelId });
+      const elapsed = startTimeRef.current
+        ? (Date.now() - startTimeRef.current) / 1000
+        : opts.timer;
+      const wpm      = calculateWPM(correctCount, elapsed);
+      // Accuracy based on unique mistake positions vs total chars reached
+      const trueErrors = mistakeSet.size;
+      const accuracy   = calculateAccuracy(correctCount, correctCount + trueErrors);
+      onFinish({ wpm, accuracy, maxCombo, errors: trueErrors, charsTyped: correctCount, levelId });
     }
-  }, [finished]);
+  }, [finished]); // eslint-disable-line
 
+  /* ── Auto-scroll cursor into view ── */
   useEffect(() => {
     if (textDisplayRef.current) {
-      const currentChar = textDisplayRef.current.querySelector('.char-current');
-      if (currentChar) {
-        currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
+      const el = textDisplayRef.current.querySelector('.char-current');
+      el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
   }, [cursorIndex]);
 
+  /* ── Combo milestone check ── */
   const checkComboMilestone = useCallback((newCombo) => {
-    for (const milestone of COMBO_MILESTONES) {
-      if (newCombo === milestone.threshold) {
-        setComboFlash(milestone);
+    for (const ms of COMBO_MILESTONES) {
+      if (newCombo === ms.threshold) {
+        setComboFlash(ms);
         setTimeout(() => setComboFlash(null), 1500);
         break;
       }
     }
   }, []);
 
+  /* ── Key handler ── */
   const handleKeyDown = useCallback((e) => {
     if (finished) return;
-    if (e.key.length !== 1 && e.key !== ' ') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // ── Backspace ──
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      if (opts.strict) return; // strict mode: no backspace
+      if (cursorIndex === 0) return;
+
+      const prevIdx = cursorIndex - 1;
+      const prevState = charStates[prevIdx];
+
+      setCharStates(prev => {
+        const next = [...prev];
+        next[prevIdx] = 'pending';
+        return next;
+      });
+
+      if (prevState === 'correct') {
+        setCorrectCount(c => Math.max(0, c - 1));
+        setCombo(c => Math.max(0, c - 1));
+      }
+      // We do NOT remove from mistakeSet – errors are permanent for accuracy
+
+      setCursorIndex(i => i - 1);
+      return;
+    }
+
+    // Only handle printable keys + space
+    if (e.key.length !== 1 && e.key !== ' ') return;
     e.preventDefault();
 
+    // Start timer on first keystroke
     if (!started) {
       setStarted(true);
       startTimeRef.current = Date.now();
     }
 
-    const expectedChar = passage[cursorIndex];
-    const typedChar = e.key;
-    setTotalAttempts(prev => prev + 1);
+    const expected = passage[cursorIndex];
+    const typed    = e.key;
+    setTotalTyped(t => t + 1);
 
-    if (typedChar === expectedChar) {
-      setCharStates(prev => { const next = [...prev]; next[cursorIndex] = 'correct'; return next; });
-      setCorrectCount(prev => prev + 1);
+    if (typed === expected) {
+      setCharStates(prev => { const n = [...prev]; n[cursorIndex] = 'correct'; return n; });
+      setCorrectCount(c => c + 1);
       const newCombo = combo + 1;
       setCombo(newCombo);
       if (newCombo > maxCombo) setMaxCombo(newCombo);
       checkComboMilestone(newCombo);
-      setCursorIndex(prev => { const next = prev + 1; if (next >= passage.length) setFinished(true); return next; });
     } else {
-      setCharStates(prev => { const next = [...prev]; next[cursorIndex] = 'wrong'; return next; });
-      setErrorCount(prev => prev + 1);
+      setCharStates(prev => { const n = [...prev]; n[cursorIndex] = 'wrong'; return n; });
+      setErrorCount(c => c + 1);
+      setMistakeSet(prev => new Set([...prev, cursorIndex]));
       setCombo(0);
       setShaking(true);
       setTimeout(() => setShaking(false), 400);
-      setCursorIndex(prev => { const next = prev + 1; if (next >= passage.length) setFinished(true); return next; });
     }
-  }, [cursorIndex, passage, started, finished, combo, maxCombo, checkComboMilestone]);
 
+    // Advance cursor
+    setCursorIndex(prev => {
+      const next = prev + 1;
+      if (next >= passage.length) setFinished(true);
+      return next;
+    });
+  }, [cursorIndex, passage, started, finished, combo, maxCombo, opts.strict, charStates, checkComboMilestone]);
+
+  /* ── ESC to quit ── */
   useEffect(() => {
-    const handleEsc = (e) => { if (e.key === 'Escape') onQuit(); };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    const fn = (e) => { if (e.key === 'Escape') onQuit(); };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
   }, [onQuit]);
 
-  const elapsed = started && startTimeRef.current ? Math.max((Date.now() - startTimeRef.current) / 1000, 0.1) : 0.1;
-  const liveWPM = started ? calculateWPM(correctCount, elapsed) : 0;
-  const liveAccuracy = totalAttempts > 0 ? calculateAccuracy(correctCount, totalAttempts) : 100;
-  const timerPercent = (timeLeft / level.time) * 100;
+  /* ── Live stats ── */
+  const elapsed     = started && startTimeRef.current ? Math.max((Date.now() - startTimeRef.current) / 1000, 0.1) : 0.1;
+  const liveWPM     = started ? calculateWPM(correctCount, elapsed) : 0;
+  const liveAccuracy = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
+  const timerPercent = (timeLeft / opts.timer) * 100;
   const timerCritical = timerPercent <= 25;
 
   const handleEndNow = () => {
@@ -128,9 +186,39 @@ export default function GameScreen({ onFinish, onQuit }) {
     }
   };
 
+  const ModeIcon = MODE_LABELS[opts.mode]?.Icon || Type;
+
   return (
     <div className="game-screen" onClick={() => inputRef.current?.focus()}>
-      {/* Stats Header */}
+
+      {/* ── Settings strip ── */}
+      <div className="game-settings-strip">
+        <span className="gs-tag">
+          <ModeIcon size={13} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+          {MODE_LABELS[opts.mode]?.label}
+        </span>
+        {opts.mode === 'words' && (
+          <span className="gs-tag">{LENGTH_LABELS[opts.textLength]}</span>
+        )}
+        <span className="gs-tag">
+          <Timer size={13} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+          {opts.timer}s
+        </span>
+        {opts.strict && (
+          <span className="gs-tag gs-tag-strict">
+            <AlertTriangle size={13} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+            STRICT
+          </span>
+        )}
+        {!opts.strict && (
+          <span className="gs-tag gs-tag-backspace">
+            <Delete size={13} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+            BACKSPACE ON
+          </span>
+        )}
+      </div>
+
+      {/* ── Stats Header ── */}
       <div className="game-header">
         <div className="stat-box">
           <span className="stat-label">WPM</span>
@@ -148,23 +236,25 @@ export default function GameScreen({ onFinish, onQuit }) {
           <span className="stat-label">LEVEL</span>
           <div className="stat-level-content">
             <span className="stat-value" style={{ color: level.color }}>{level.name.toUpperCase()}</span>
-            <span className="stat-level-icon">{level.icon}</span>
+            <span className="stat-level-icon">
+              <LucideIcon name={level.iconName} size={18} color={level.color} strokeWidth={2} />
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Timer Bar */}
+      {/* ── Timer Bar ── */}
       <div className="timer-section">
         <div className="timer-bar-container">
-          <div className={`timer-bar ${timerCritical ? 'timer-critical' : ''}`} style={{ width: `${timerPercent}%` }}></div>
+          <div className={`timer-bar ${timerCritical ? 'timer-critical' : ''}`} style={{ width: `${timerPercent}%` }} />
         </div>
         <div className="timer-info">
           <span className="timer-hint">{started ? '' : 'PRESS A KEY TO BEGIN'}</span>
-          <span className={`timer-countdown ${timerCritical ? 'critical' : ''}`}>{timeLeft.toFixed(1)}s</span>
+          <span className={`timer-countdown ${timerCritical ? 'critical' : ''}`}>{timeLeft}s</span>
         </div>
       </div>
 
-      {/* Text Display */}
+      {/* ── Text Display ── */}
       <div className={`text-display-box ${started ? 'active' : ''}`} ref={textDisplayRef}>
         {passage.split('').map((char, i) => {
           let cls = 'char char-pending';
@@ -173,11 +263,15 @@ export default function GameScreen({ onFinish, onQuit }) {
           } else if (i === cursorIndex) {
             cls = 'char char-current';
           }
-          return <span key={i} className={cls}>{char === ' ' ? '\u00A0' : char}</span>;
+          return (
+            <span key={i} className={cls}>
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          );
         })}
       </div>
 
-      {/* Input */}
+      {/* ── Hidden input ── */}
       <input
         ref={inputRef}
         className={`typing-input ${shaking ? 'shake' : ''}`}
@@ -189,16 +283,31 @@ export default function GameScreen({ onFinish, onQuit }) {
         onKeyDown={handleKeyDown}
         value=""
         onChange={() => {}}
-        placeholder="START TYPING…"
+        placeholder={opts.strict ? 'STRICT MODE — NO BACKSPACE…' : 'START TYPING… (BACKSPACE TO UNDO)'}
       />
 
-      {/* Control Buttons */}
-      <div className="game-controls">
-        <Link to="/" className="btn btn-quit">QUIT (ESC)</Link>
-        <button className="btn btn-end-now" onClick={handleEndNow}>END NOW</button>
+      {/* ── Error counter ── */}
+      <div className="game-error-row">
+        <span className="game-error-label">ERRORS</span>
+        <span className="game-error-value">{errorCount}</span>
+        {!opts.strict && (
+          <span className="game-backspace-hint">
+            <Delete size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+            backspace to correct
+          </span>
+        )}
       </div>
 
-      {/* Combo Flash */}
+      {/* ── Controls ── */}
+      <div className="game-controls">
+        <Link to={`/options/${levelId}`} className="btn btn-quit">OPTIONS (ESC)</Link>
+        <button className="btn btn-end-now" onClick={handleEndNow}>
+          <ChevronRight size={15} strokeWidth={2.5} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+          END NOW
+        </button>
+      </div>
+
+      {/* ── Combo Flash ── */}
       {comboFlash && (
         <div className="combo-flash-overlay" style={{ color: comboFlash.color }}>
           {comboFlash.text}

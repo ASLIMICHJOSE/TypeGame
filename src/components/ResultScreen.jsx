@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
+import { RotateCcw, Home, Trophy } from 'lucide-react';
 import { getRank, calculateXP } from '../utils/gameLogic';
 import levels from '../data/levels';
+import LucideIcon from './LucideIcon';
 import './ResultScreen.css';
 
 export default function ResultScreen({ result, newBadge, onRetry }) {
@@ -43,7 +45,10 @@ export default function ResultScreen({ result, newBadge, onRetry }) {
     <div className="result-screen">
       {/* Level Complete Header */}
       <div className="result-header">
-        <span className="result-level-complete">{level.icon} {level.name.toUpperCase()} RUN COMPLETE</span>
+        <span className="result-level-complete result-level-complete--icon">
+          <LucideIcon name={level.iconName} size={20} color={level.color} strokeWidth={2} />
+          {level.name.toUpperCase()} RUN COMPLETE
+        </span>
       </div>
 
       {/* Giant WPM Display */}
@@ -85,7 +90,9 @@ export default function ResultScreen({ result, newBadge, onRetry }) {
           <span className="badge-unlock-title">NEW BADGE UNLOCKED</span>
           <div className="badge-unlock-content">
             <div className="badge-unlock-icon-box">
-              <span className="badge-unlock-icon">{newBadge.icon}</span>
+              <span className="badge-unlock-icon">
+                <LucideIcon name={newBadge.iconName} size={32} strokeWidth={1.75} />
+              </span>
             </div>
             <span className="badge-unlock-name">{newBadge.name}</span>
             <span className="badge-unlock-desc">{newBadge.description}.</span>
@@ -95,11 +102,19 @@ export default function ResultScreen({ result, newBadge, onRetry }) {
 
       {/* Buttons */}
       <div className="result-buttons">
-        <button className="btn-primary-gradient" onClick={onRetry}>🔁 RETRY</button>
-        <Link to="/" className="btn-outline">HOME</Link>
-        <Link to="/leaderboard" className="btn-outline">🏆 LEADERBOARD</Link>
+        <button className="btn-primary-gradient" onClick={onRetry}>
+          <RotateCcw size={15} strokeWidth={2.5} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+          RETRY
+        </button>
+        <Link to="/" className="btn-outline">
+          <Home size={15} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+          HOME
+        </Link>
+        <Link to="/leaderboard" className="btn-outline">
+          <Trophy size={15} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+          LEADERBOARD
+        </Link>
       </div>
     </div>
   );
 }
-

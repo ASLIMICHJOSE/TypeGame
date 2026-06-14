@@ -1,15 +1,23 @@
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import levels from '../data/levels';
+import LucideIcon from './LucideIcon';
 import './LeaderboardScreen.css';
 
-const RANK_ICONS = ['🥇', '🥈', '🥉'];
-const LEVEL_ICONS = {
-  ember: '🌱', blaze: '🔥', storm: '⚡', inferno: '💀', legend: '👑'
-};
+const RANK_MEDALS = [
+  { Icon: 'Medal', color: '#ffd700' },  // gold
+  { Icon: 'Medal', color: '#c0c0c0' },  // silver
+  { Icon: 'Medal', color: '#cd7f32' },  // bronze
+];
+
 const LEVEL_WPM_RANGE = {
   ember: '≤ 30 WPM', blaze: '30 – 50 WPM', storm: '50 – 70 WPM',
   inferno: '70 – 90 WPM', legend: '90+ WPM'
 };
+
+// Build a map from level id -> iconName
+const LEVEL_ICON_MAP = Object.fromEntries(levels.map(l => [l.id, l.iconName]));
+const LEVEL_COLOR_MAP = Object.fromEntries(levels.map(l => [l.id, l.color]));
 
 export default function LeaderboardScreen({ leaderboard, playerName }) {
   const sorted = [...leaderboard].sort((a, b) => b.wpm - a.wpm).slice(0, 10);
@@ -25,6 +33,8 @@ export default function LeaderboardScreen({ leaderboard, playerName }) {
         {sorted.map((entry, i) => {
           const isPlayer = entry.name === playerName && !entry.isBot;
           const isTop3 = i < 3;
+          const iconName = LEVEL_ICON_MAP[entry.level];
+          const iconColor = LEVEL_COLOR_MAP[entry.level] || '#ff8c00';
 
           return (
             <div
@@ -33,7 +43,9 @@ export default function LeaderboardScreen({ leaderboard, playerName }) {
             >
               <div className="lb-row-rank">
                 {isTop3 ? (
-                  <span className="lb-medal">{RANK_ICONS[i]}</span>
+                  <span className="lb-medal" style={{ color: RANK_MEDALS[i].color }}>
+                    <LucideIcon name="Medal" size={22} color={RANK_MEDALS[i].color} strokeWidth={1.75} />
+                  </span>
                 ) : (
                   <span className="lb-rank-number">#{i + 1}</span>
                 )}
@@ -44,7 +56,10 @@ export default function LeaderboardScreen({ leaderboard, playerName }) {
                   {isPlayer && <span className="lb-you-tag">YOU</span>}
                 </span>
                 <span className="lb-meta">
-                  {LEVEL_ICONS[entry.level] || ''} {entry.level?.charAt(0).toUpperCase() + entry.level?.slice(1)} · {entry.accuracy}% acc
+                  {iconName && (
+                    <LucideIcon name={iconName} size={13} color={iconColor} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                  )}
+                  {entry.level?.charAt(0).toUpperCase() + entry.level?.slice(1)} · {entry.accuracy}% acc
                 </span>
               </div>
               <div className="lb-row-wpm">
@@ -57,7 +72,8 @@ export default function LeaderboardScreen({ leaderboard, playerName }) {
       </div>
 
       <Link to="/" className="btn btn-outline-primary lb-back-btn">
-        ← BACK TO ARENA
+        <ArrowLeft size={15} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+        BACK TO ARENA
       </Link>
     </div>
   );
