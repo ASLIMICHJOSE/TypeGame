@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Type, Quote, Code2, Timer, AlertTriangle, Delete, ChevronRight } from 'lucide-react';
 import levels from '../data/levels';
@@ -15,11 +15,28 @@ const MODE_LABELS = {
 };
 const LENGTH_LABELS = { short: 'SHORT', medium: 'MEDIUM', long: 'LONG' };
 
+// Memoized single character — only re-renders when its own state changes
+const Character = memo(function Character({ char, state, isCurrent }) {
+  let cls;
+  if (isCurrent) {
+    cls = 'char char-current';
+  } else if (state === 'correct') {
+    cls = 'char char-correct';
+  } else if (state === 'wrong') {
+    cls = 'char char-wrong';
+  } else {
+    cls = 'char char-pending';
+  }
+  return <span className={cls}>{char === ' ' ? '\u00A0' : char}</span>;
+});
+
 export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit }) {
   const { levelId } = useParams();
   const level   = useMemo(() => levels.find(l => l.id === levelId) || levels[0], [levelId]);
   const opts    = useMemo(() => ({ ...DEFAULT_OPTS, ...options }), [options]);
   const passage = useMemo(() => generatePassage(levelId, opts.textLength, opts.mode), [levelId, opts.textLength, opts.mode]);
+  // Pre-split into array once so we never re-split on every render
+  const passageChars = useMemo(() => passage.split(''), [passage]);
 
   /* ── State ── */
   const [cursorIndex,   setCursorIndex]   = useState(0);
@@ -77,11 +94,19 @@ export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit })
     }
   }, [finished]); // eslint-disable-line
 
-  /* ── Auto-scroll cursor into view ── */
-  useEffect(() => {
-    if (textDisplayRef.current) {
-      const el = textDisplayRef.current.querySelector('.char-current');
-      el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  /* ── Auto-scroll cursor into view (only when line changes) ── */
+  const lastScrollLineRef = useRef(-1);
+  useLayoutEffect(() => {
+    const box = textDisplayRef.current;
+    if (!box) return;
+    const el = box.querySelector('.char-current');
+    if (!el) return;
+    // Only scroll when the cursor jumps to a new line to avoid layout reflows on every keypress
+    const lineTop = Math.round(el.offsetTop);
+    if (lineTop !== lastScrollLineRef.current) {
+      lastScrollLineRef.current = lineTop;
+      // 'auto' = instant, zero-delay, no jank
+      el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
     }
   }, [cursorIndex]);
 
@@ -136,7 +161,7 @@ export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit })
       startTimeRef.current = Date.now();
     }
 
-    const expected = passage[cursorIndex];
+    const expected = passageChars[cursorIndex];
     const typed    = e.key;
     setTotalTyped(t => t + 1);
 
@@ -150,7 +175,7 @@ export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit })
     } else {
       setCharStates(prev => { const n = [...prev]; n[cursorIndex] = 'wrong'; return n; });
       setErrorCount(c => c + 1);
-      setMistakeSet(prev => new Set([...prev, cursorIndex]));
+      setMistakeSet(prev => { const s = new Set(prev); s.add(cursorIndex); return s; });
       setCombo(0);
       setShaking(true);
       setTimeout(() => setShaking(false), 400);
@@ -162,7 +187,7 @@ export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit })
       if (next >= passage.length) setFinished(true);
       return next;
     });
-  }, [cursorIndex, passage, started, finished, combo, maxCombo, opts.strict, charStates, checkComboMilestone]);
+  }, [cursorIndex, passageChars, passage, started, finished, combo, maxCombo, opts.strict, charStates, checkComboMilestone]);
 
   /* ── ESC to quit ── */
   useEffect(() => {
@@ -256,19 +281,14 @@ export default function GameScreen({ options = DEFAULT_OPTS, onFinish, onQuit })
 
       {/* ── Text Display ── */}
       <div className={`text-display-box ${started ? 'active' : ''}`} ref={textDisplayRef}>
-        {passage.split('').map((char, i) => {
-          let cls = 'char char-pending';
-          if (i < cursorIndex) {
-            cls = charStates[i] === 'correct' ? 'char char-correct' : 'char char-wrong';
-          } else if (i === cursorIndex) {
-            cls = 'char char-current';
-          }
-          return (
-            <span key={i} className={cls}>
-              {char === ' ' ? '\u00A0' : char}
-            </span>
-          );
-        })}
+        {passageChars.map((char, i) => (
+          <Character
+            key={i}
+            char={char}
+            state={charStates[i]}
+            isCurrent={i === cursorIndex}
+          />
+        ))}
       </div>
 
       {/* ── Hidden input ── */}
